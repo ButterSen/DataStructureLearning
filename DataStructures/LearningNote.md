@@ -246,6 +246,7 @@ int siftMin(double* data,int low,int high){
 | O(n^2) | O(n^2) | O(n) | O(1)  | 稳定  | 简单  |
 
 **C语言代码实现**
+
 *沉入水底*
 
 ```C
@@ -286,4 +287,67 @@ int bubbleSort2(sqlist* sl){
 
 快速排序是由冒泡算法改进而得的，它的基本思想是在待排序的n个元素中选出一个元素作为基准（通常取第一个元素），把基准放入最终位置后，整个数据区间被基准分割成两个子区间，所有关键字比基准小的放置在前子区间中，所有比基准大的放置在后子区间中，并把基准排在这两个子区间的中间，这个过程称作一趟快速排序或者划分；然后对所有两个子区间重复相同过程，直至每个子区间内的数量只有0个或1个。
 
-划分的过程采用从两头向中间扫描的办法，**同时交换与基准元素逆序的元素**，具体做法是设置两个指示器i和j,他们的初值分别指向无序区中第一个和最后一个元素。假设无序区中的元素为R[s..t]，则i的初值为s,j的初值为t,首先将
+划分的过程采用从两头向中间扫描的办法，**同时交换与基准元素逆序的元素**，具体做法是设置两个指示器i和j,他们的初值分别指向无序区中第一个和最后一个元素。假设无序区中的元素为R[s..t]，则i的初值为s,j的初值为t,首先将基准R[s]赋给临时变量tmp,然后将tmp值与R[j]值作比较，若小于则j--，若大于则将R[j]移到R[i]处；然后令i自前往后扫描，然后将tmp值与R[i]作比较，若大于则i++,若小于则将R[i]移到R[j]处；如此重复直到i=j,最终将tmp赋给R[i]。
+
+**C语言代码实现**
+
+*使用递归实现*
+
+```C
+int quickSort(sqlist* sl){
+    quicksort(sl,0,sl->length-1);
+}
+
+int quicksort(sqlist* sl,int s,int t){
+    if(s<t){
+    int bench = partition(sl->data,s,t);
+    quicksort(sl,s,bench-1);
+    quicksort(sl,bench+1,t);
+    }
+}
+int partition(double* data,int s,int t){
+    int i =s,j=t;
+    double tmp = data[s];
+    while(i!=j){
+        //添加j>i这一条件非常关键，代表了能够进行扫描的范围
+        while(j>i&&data[j]>=tmp){
+            j--;
+        }
+        data[i] = data[j];
+        while(i<j&&data[i]<=tmp){
+            i++;
+        }
+        data[j] = data[i];
+    }
+    data[i] = tmp;
+    return i;
+}
+```
+
+*使用栈代替递归*
+```C
+int quickSort(sqlist* sl){
+    //quicksort(sl,0,sl->length-1);
+    stack* st = (stack*)malloc(sizeof(stack));
+    initStack(st);
+    double start[2];
+    start[0] = 0;start[1] = sl->length-1;
+    push(st,start);
+    while(!stackEmpty(st)){
+        double* bround = pop(st);
+        double bentch = partition(sl->data,bround[0],bround[1]);
+        if(bentch>bround[0]+1){
+            double* bround1 = (double*)malloc(sizeof(double)*2);
+            bround1[0] = bround[0];
+            bround1[1] = bentch - 1;
+            push(st,bround1);
+        }
+        if(bentch<bround[1]-1){
+            double* bround2 = (double*)malloc(sizeof(double)*2);
+            bround2[0] = bentch+1;
+            bround2[1] = bround[1];
+            push(st,bround2); 
+        }
+    }
+}
+```
