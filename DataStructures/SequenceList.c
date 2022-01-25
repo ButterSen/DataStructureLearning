@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "stack.h"
 /*
   本代码段设计用来实现线性表的功能以及相关算法
   本代码顺序表的逻辑下标从1开始，但其他排序之类算法与下标无关
@@ -41,8 +42,10 @@ int sift(double* num,int low,int high);
 //冒泡排序
 int bubbleSort(sqlist* sl);//沉入水底
 int bubbleSort2(sqlist* sl);//浮出水面
-
-
+//快速排序
+int quickSort(sqlist* sl);
+int quicksort(sqlist* sl,int s,int t);
+int partition(double* data,int s,int t);
 
 /*************算法设计题目***************/
 /*1.简单选择排序的变种：
@@ -83,7 +86,8 @@ int main(){
         //simpleChooseSort2(sl);
         //countSort(sl);//计数算法有巨大的缺陷在于无法处理关键值相同情况
         //heapChooseSort2(sl);
-        bubbleSort(sl);
+        //bubbleSort(sl);
+        quickSort(sl);
         //slPrint(sl);
         if(!isOrderly(sl)){
             slPrint(sl);
@@ -304,6 +308,55 @@ int bubbleSort2(sqlist* sl){
     }
 }
 
+int quickSort(sqlist* sl){
+    //quicksort(sl,0,sl->length-1);
+    stack* st = (stack*)malloc(sizeof(stack));
+    initStack(st);
+    double start[2];
+    start[0] = 0;start[1] = sl->length-1;
+    push(st,start);
+    while(!stackEmpty(st)){
+        double* bround = pop(st);
+        double bentch = partition(sl->data,bround[0],bround[1]);
+        if(bentch>bround[0]+1){
+            double* bround1 = (double*)malloc(sizeof(double)*2);
+            bround1[0] = bround[0];
+            bround1[1] = bentch - 1;
+            push(st,bround1);
+        }
+        if(bentch<bround[1]-1){
+            double* bround2 = (double*)malloc(sizeof(double)*2);
+            bround2[0] = bentch+1;
+            bround2[1] = bround[1];
+            push(st,bround2); 
+        }
+    }
+}
+
+int quicksort(sqlist* sl,int s,int t){
+    if(s<t){
+    int bench = partition(sl->data,s,t);
+    quicksort(sl,s,bench-1);
+    quicksort(sl,bench+1,t);
+    }
+}
+int partition(double* data,int s,int t){
+    int i =s,j=t;
+    double tmp = data[s];
+    while(i!=j){
+        //添加j>i这一条件非常关键，代表了能够进行扫描的范围
+        while(j>i&&data[j]>=tmp){
+            j--;
+        }
+        data[i] = data[j];
+        while(i<j&&data[i]<=tmp){
+            i++;
+        }
+        data[j] = data[i];
+    }
+    data[i] = tmp;
+    return i;
+}
 
 int simpleChooseSort2(sqlist* sl){
     //与前面设计的简单排序唯一的区别是从无序区中选出的是最大的元素
