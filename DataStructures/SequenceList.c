@@ -38,6 +38,10 @@ int simpleChooseSort(sqlist* sl);
 int heapChooseSort(sqlist* sl);
 //堆的筛选算法，筛选算法运行的前提条件，左右子树已经是大顶堆
 int sift(double* num,int low,int high);
+//冒泡排序
+int bubbleSort(sqlist* sl);//沉入水底
+int bubbleSort2(sqlist* sl);//浮出水面
+
 
 
 /*************算法设计题目***************/
@@ -60,6 +64,8 @@ int countSort(sqlist* sl);
 int heapChooseSort2(sqlist* sl);
 int siftMin(double* num,int low,int high);
 
+
+
 int main(){
     sqlist *sl = (sqlist*)malloc(sizeof(sqlist));
     initSqlist(sl);
@@ -75,7 +81,9 @@ int main(){
         //simpleChooseSort(sl);
         //heapChooseSort(sl);
         //simpleChooseSort2(sl);
-        countSort(sl);//计数算法有巨大的缺陷在于无法处理关键值相同情况
+        //countSort(sl);//计数算法有巨大的缺陷在于无法处理关键值相同情况
+        //heapChooseSort2(sl);
+        bubbleSort(sl);
         //slPrint(sl);
         if(!isOrderly(sl)){
             slPrint(sl);
@@ -272,6 +280,31 @@ int sift(double* array,int low,int high){
     array[i] = tmp;
 }
 
+int bubbleSort(sqlist* sl){
+    for(int i = 0;i<sl->length-1;i++){
+        for(int j = 0;j<sl->length-i-1;j++){
+            if(sl->data[j]>sl->data[j+1]){
+                double tmp = sl->data[j];
+                sl->data[j] = sl->data[j+1];
+                sl->data[j+1] = tmp;
+            }
+        }
+    }
+}
+
+int bubbleSort2(sqlist* sl){
+    for(int i = 0;i<sl->length-1;i++){
+        for(int j = sl->length-1;j>i;j--){
+            if(sl->data[j]<sl->data[j-1]){
+                double tmp = sl->data[j];
+                sl->data[j] = sl->data[j-1];
+                sl->data[j-1] = tmp;
+            }
+        }
+    }
+}
+
+
 int simpleChooseSort2(sqlist* sl){
     //与前面设计的简单排序唯一的区别是从无序区中选出的是最大的元素
     for(int i = sl->length-1;i>0;i--){//对于R[0,i]的无序区循环
@@ -308,8 +341,37 @@ int countSort(sqlist* sl){
 }
 
 int heapChooseSort2(sqlist* sl){
-
+    //初始建堆
+    for(int i = (sl->length-1)/2;i>=0;i--){
+        siftMin(sl->data,i,sl->length-1);
+    }
+    double newData[sl->length];
+    for(int i = sl->length-1;i>0;i--){
+        newData[sl->length-1-i] = sl->data[0];
+        sl->data[0] = sl->data[i];
+        sl->data[i] = newData[sl->length-i-1];
+        siftMin(sl->data,0,i-1);
+    }
+    newData[sl->length-1] = sl->data[0]; 
+    for(int i = 0;i<sl->length;i++){
+        sl->data[i] = newData[i];
+    }
 }
 int siftMin(double* data,int low,int high){
-    
+    int i = low;
+    int j = 2*i+1;//i是父节点，j是子节点
+    double tmp = data[i];
+    while(j<=high){
+        if(j<high&&data[j]>data[j+1]){
+            j++;//取最小
+        }
+        if(data[j]<tmp){
+            data[i] = data[j];
+            i = j;
+            j = 2*i+1;
+        }else{
+            break;
+        }
+    }
+    data[i] = tmp;
 }
