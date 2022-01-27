@@ -14,6 +14,7 @@
   - [交换排序算法](#交换排序算法)
     - [冒泡排序](#冒泡排序)
     - [快速排序](#快速排序)
+  - [归并排序](#归并排序)
 
 ## 插入排序
 
@@ -351,3 +352,94 @@ int quickSort(sqlist* sl){
     }
 }
 ```
+## 归并排序
+归并排序的基本思想是将$R[0..n-1]$看成n个长度为1的有序表，将相邻有序表成对归并，得到n/2个长度为2的有序表；再将这些有序表成对归并，得到n/4个长度为4的有序表；如此反复进行下去，最后得到一个长度为n的有序表。
+
+由于归并是在相邻两个有序表中进行的，因此，上述排序方法也叫**二路归并排序**。如果归并操作在相邻的多个有序表中进行，则叫**多路归并排序**。
+
+将两个有序表归并为一个有序表的算法为merge。设两个有序表$R[low..mid],R[mid+1..high]$归并后存放在$R[low..high]$中，为了简便，称$R[low..mid]$为第一段，称$R[mid+1..high]$为第二段，每次从两个段中取出一个元素进行关键字的比较，将较小者放入R1中，最后将各段中余下的部分直接复制到R1中。这样得到的R1是一个有序表，再将其复制回R中。
+
+merge实现了一次归并，我们需要函数mergePass去解决一趟归并问题。在某趟归并中，设各子表的长度为length（最后一个子表的长度可能小于length），则归并前共$\lceil{n/length}\rceil$个有序的子表，分别为$R[0..length-1]、R[length..2length-1]、...、R[(\lceil{n/length}\rceil)*length..n-1]。$
+
+调用merge将相邻的一对子表进行归并时，必须对表的个数可能是奇数以及最后一个表的长度小于length这两种特殊情况进行特殊处理。若子表个数为奇数，则最后一个表无须和其他子表进行归并（即本趟轮空）；若子表个数为偶数，则要注意到最后一对子表中后一个子表的区间上界是n-1。
+
+**C语言代码实现**
+```C
+int mergeSort(sqlist* sl){
+    for(int i = 1;i<sl->length;i=i*2){
+        mergePass(sl->data,i,sl->length);
+    }
+}
+int mergePass(double* data,int length,int n){
+    int i = 0;
+    for(i = 0;i+2*length-1<n;i=i+2*length){
+        merge(data,i,i+length-1,i+2*length-1);
+    }
+    //解决子表个数为奇数问题
+    if(i+length-1<n){
+        merge(data,i,i+length-1,n-1);
+    }
+}
+//输入参数:两个需要合并的数组以及两个数组长度
+int merge(double* data,int low,int mid,int high){
+    double* newData = (double*)malloc(sizeof(double)*(high-low+1));
+    int i=low,j=mid+1,index = 0;
+    while(i<=mid&&j<=high){
+        //data_1[i]小则放入新数组中
+        if(data[i]<=data[j]){
+            newData[index++] = data[i++];
+        }else{
+            newData[index++] = data[j++];
+        }
+    }
+    while(i<=mid){
+        newData[index++] = data[i++];
+    }
+    while(j<=high){
+        newData[index++] = data[j++];
+    }
+    for(int k = 0,i = low;i<=high;i++,k++){
+        data[i] = newData[k];
+    }
+}
+```
+*三路归并(合成三个有序表)*
+```C
+int mergeSort3(sqlist* sl){
+    int len = 1,i=0;
+    for(len = 1;len<=sl->length;len=len*3){
+    for(i = 0;i+3*len-1<sl->length;i=i+3*len){
+        merge3(sl->data,i,i+len-1,i+2*len-1,i+3*len-1);
+    }
+    if(i+2*len-1<sl->length){
+        merge3(sl->data,i,i+len-1,i+2*len-1,sl->length-1);
+    }else if(i+len-1<sl->length){
+        merge3(sl->data,i,i+len-1,sl->length-1,sl->length-1);
+    }
+    }
+}
+int merge3(double* data,int a,int b,int c,int d){
+    double* newData = (double*)malloc(sizeof(double)*(d-a+1));
+    int i = a,j = b + 1,k = c + 1,l = d,index = 0;
+    while(1){
+        int m;
+        double min = __DBL_MAX__;
+        if(i<=b){min = data[i];m=0;}
+        if(j<=c&&data[j]<min){min = data[j];m=1;}
+        if(k<=d&&data[k]<min){min = data[k];m=2;}
+        if(min == __DBL_MAX__){break;}
+        switch(m){
+            case 0:i++;break;
+            case 1:j++;break;
+            case 2:k++;break;
+        }
+        newData[index++] = min;
+    }
+    for(int n = a;n<=d;n++){
+        data[n] = newData[n-a];
+    }
+}
+```
+
+
+
