@@ -15,6 +15,7 @@
     - [冒泡排序](#冒泡排序)
     - [快速排序](#快速排序)
   - [归并排序](#归并排序)
+  - [基数排序算法](#基数排序算法)
 
 ## 插入排序
 
@@ -36,7 +37,7 @@ int directInsertSort(sqlist*sl){
     for(int i = 1;i<sl->length;i++){
         if(sl->data[i]<sl->data[i-1]){    //反序 这里优化了代码方法，首先通过判断插入元素与有序组最大的元素相比较
            tmp = sl->data[i];   //如果大于，则不用再插入，前i位数组直接为有序组，反之，需要插入，按照比大小的方式进行排序
-           int j = i-1;                   //j指向有序组最后的元素
+            int j = i-1;                   //j指向有序组最后的元素
            while(tmp<sl->data[j]&&j>=0){  //不能忽略j>=0，防止数组越界
                sl->data[j+1] = sl->data[j];a
                j--;
@@ -440,6 +441,36 @@ int merge3(double* data,int a,int b,int c,int d){
     }
 }
 ```
+## 基数排序算法
+基数排序的基本思想：根据关键字中各位的值，通过对待排序的n个元素进行若干趟“分配”与“收集“来实现排序的。
 
+设待排序的线性表中每个元素的关键字都是d位的十进制正整数，在排序过程中需要对该线性表进行d趟的分配与收集处理，每趟的处理方法是相同的。在进行第j(j=1,2,...,d)趟处理时，说先按元素在线性表中的排列顺序，依次将每个元素插入编号为0~9的某个队列（关键字右起第j位上的值是几，就插入第几号队列中），这个过程称为**分配**；然后，按队列编号从小到大、同一队列按插入先后的顺序从队列中取出所有元素，重新构成一个线性表，这个过程称为**收集**。在进行了d趟的分配与收集之后，排序结束。
+
+**C语言代码实现**
+```C
+int radixSort(sqlist* sl){
+    //线性表中最多的元素，基数的最大取值，关键字位数的最大取值
+    queue* q[MAXR];
+    for(int i = 0;i<MAXR;i++){
+        q[i] = (queue*)malloc(sizeof(queue));
+        initQueue(q[i]);
+    }
+    for(int i = 0;i<MAXD;i++){
+        //收集过程
+        for(int j = 0;j<sl->length;j++){
+            //计算出应该加入哪个队列当中
+            int index=(int)(sl->data[j]/(int)pow(10,i))%(int)pow(10,i+1);
+            inQueue(q[index],sl->data[j]);
+        }
+        int num = 0;
+        //分配过程
+        for(int j = 0;j<MAXR;j++){
+            while(!queueEmpty(q[j])){
+                sl->data[num++] = outQueue(q[j]);
+            }
+        }
+    }
+}
+```
 
 

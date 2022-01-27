@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "stack.h"
+#include "queue.h"
 /*
   本代码段设计用来实现线性表的功能以及相关算法
   本代码顺序表的逻辑下标从1开始，但其他排序之类算法与下标无关
@@ -50,9 +52,11 @@ int partition(double* data,int s,int t);
 int mergeSort(sqlist* sl);
 int mergePass(double*,int,int);
 int merge(double*,int,int,int);
+//三路归并排序
 int mergeSort3(sqlist* sl);
 int merge3(double*,int,int,int,int);
-
+//基数排序算法
+int radixSort(sqlist*);
 
 /*************算法设计题目***************/
 /*1.简单选择排序的变种：
@@ -97,7 +101,8 @@ int main(){
         //heapChooseSort2(sl);
         //bubbleSort(sl);
         //quickSort(sl);
-        mergeSort3(sl);
+        //mergeSort3(sl);
+        radixSort(sl);
         //slPrint(sl);
         if(!isOrderly(sl)){
             slPrint(sl);
@@ -443,6 +448,30 @@ int merge3(double* data,int a,int b,int c,int d){
     }
     for(int n = a;n<=d;n++){
         data[n] = newData[n-a];
+    }
+}
+
+int radixSort(sqlist* sl){
+    //线性表中最多的元素，基数的最大取值，关键字位数的最大取值
+    queue* q[MAXR];
+    for(int i = 0;i<MAXR;i++){
+        q[i] = (queue*)malloc(sizeof(queue));
+        initQueue(q[i]);
+    }
+    for(int i = 0;i<MAXD;i++){
+        //收集过程
+        for(int j = 0;j<sl->length;j++){
+            //计算出应该加入哪个队列当中
+            int index=(int)(sl->data[j]/(int)pow(10,i))%(int)pow(10,i+1);
+            inQueue(q[index],sl->data[j]);
+        }
+        int num = 0;
+        //分配过程
+        for(int j = 0;j<MAXR;j++){
+            while(!queueEmpty(q[j])){
+                sl->data[num++] = outQueue(q[j]);
+            }
+        }
     }
 }
 
