@@ -5,8 +5,8 @@
 #include "stack.h"
 #include "queue.h"
 /*
-  本代码段设计用来实现线性表的功能以及相关算法
-  本代码顺序表的逻辑下标从1开始，但其他排序之类算法与下标无关
+  本代码段设计用来实现各类排序算法
+  使用数据结构来减少输入参数等
 */
 #define maxSize 100 //the max length of seqlist
 typedef struct{
@@ -15,11 +15,6 @@ typedef struct{
 }sqlist;
 /***********线性表基本函数**************/
 void initSqlist(sqlist* sl);
-double getElem(sqlist* sl,int i);
-int insertElem(sqlist* sl,int i,double in);
-int addElem(sqlist* sl,double in);
-int deleteElem(sqlist* sl,int i);
-int locateElem(sqlist* sl,double elem);
 int createListByArray(sqlist* sl,double array[],int n);
 void slPrint(sqlist* sl);
 int isOrderly(sqlist* sl);
@@ -117,55 +112,6 @@ int main(){
 }
 void initSqlist(sqlist* sl){
     sl->length = 0;
-}
-double getElem(sqlist* sl,int i){
-    if(i<1||i>sl->length+1){//注意这块i要大于length+1，主要考虑最后插入的情况
-        return __SIZEOF_DOUBLE__;
-    }else{
-        return (sl->data[i-1]);
-    }
-}
-int insertElem(sqlist* sl,int i,double in){
-    if(i<1||i>sl->length+1){
-        return -1; //数组越界
-    }
-    else{
-        int t = 0;
-        //对数组的后length - i + 1元素进行平移
-        while(sl->length-i-t>0){
-            sl->data[sl->length-t] = sl->data[sl->length-t-1];
-            t++;
-        }
-        sl->data[i-1] = in;
-        sl->length++;
-        return 0;
-    }
-}
-int addElem(sqlist *sl,double in){
-    return insertElem(sl,sl->length+1,in);
-}
-int deleteElem(sqlist* sl,int i){
-    if(i<1||i>sl->length){//这里不用使i>length+1
-        return -1;//数组越界
-    }
-    else{
-        int t = 0;
-        while(sl->length-i-t>0){
-            sl->data[i-1+t] = sl->data[i+t];
-            t++;
-        }
-        sl->length--;
-        return 0;
-    }
-}
-int locateElem(sqlist*sl,double elem){
-    int i = 0;
-    for(i = 0;i<sl->length;i++){
-        if(elem==sl->data[i]){
-            return i+1;
-        }
-    }
-    return 0;//不要忘记查询不到所要返回的结果
 }
 int createListByArray(sqlist* sl,double array[],int n){
     for(int i = 0;i<n;i++){
