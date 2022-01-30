@@ -27,6 +27,12 @@ BTNode* createBTreeByParentheses(char*);
 BTNode* transArrayToBTree(char*);
 BTNode* createRandomBTree();
 void preOrderRecursive(BTNode*);
+BTNode* findX(BTNode*,char);
+BTNode* findXVS(BTNode*,char);
+void destoryBTree(BTNode*);
+void destoryBTreeVS(BTNode*);
+int getBTreeHeight(BTNode*);
+int getBTreeHeightVS(BTNode*);
 
 int main(){
     srand((unsigned)time(0));
@@ -42,7 +48,17 @@ int main(){
     BTNode* root = createRandomBTree();
     preOrderRecursive(root);
     printf("\n");
+    
+    // printf("%d",getBTreeHeight(root));
+    // printf("\n");
+
+    // char c = 'H';
+    // BTNode* tmp = findXVS(root,c);
+    // if(tmp!=NULL)printf("%c",tmp->data);
+    // else printf("\'%c\' not found",c);
+    // printf("\n");
     }
+
     return 0;    
 }
 
@@ -205,3 +221,80 @@ void preOrderRecursive(BTNode* root){
     preOrderRecursive(root->rchild);
     }
 }
+
+BTNode* findX(BTNode* btn,char c){
+    BTNode* p;
+    if(btn==NULL){
+        return NULL;
+    }else if(btn->data==c){
+        return btn;
+    }else{
+        p = findX(btn->lchild,c);
+        if(p!=NULL) return p;
+        else return findX(btn->rchild,c);
+    }
+}
+
+BTNode* findXVS(BTNode* btn,char c){
+    if(btn==NULL){return NULL;}
+    BTNodeStack* btns = (BTNodeStack*)malloc(sizeof(BTNodeStack));
+    initBTNodeStack(btns);
+    pushBTNode(btns,btn);
+    while(!btnStackEmpty(btns)){
+        BTNode* tmp = popBTNode(btns);
+        if(tmp->data==c){
+            return tmp;
+        }else{
+            //入栈子结点
+            if(tmp->lchild!=NULL){
+                pushBTNode(btns,tmp->lchild);
+            }
+            if(tmp->rchild!=NULL){
+                pushBTNode(btns,tmp->rchild);
+            }
+        }
+    }
+    return NULL;
+}
+
+void destoryBTree(BTNode* root){
+    if(root!=NULL){
+        destoryBTree(root->lchild);
+        destoryBTree(root->rchild);
+        free(root);
+    }
+}
+
+void destoryBTreeVS(BTNode* root){
+    BTNodeStack* btns = (BTNodeStack*)malloc(sizeof(BTNodeStack));
+    initBTNodeStack(btns);
+    if(root!=NULL){
+        pushBTNode(btns,root);
+    }
+    while(!btnStackEmpty(btns)){
+        BTNode* temp = popBTNode(btns);
+        if(temp->lchild!=NULL){
+            pushBTNode(btns,temp->lchild);
+        }
+        if(temp->rchild!=NULL){
+            pushBTNode(btns,temp->rchild);
+        }
+        free(temp);
+    }
+}
+
+int getBTreeHeight(BTNode* root){
+    if(root==NULL){return 0;}
+    else{
+        return fmax(getBTreeHeight(root->lchild),getBTreeHeight(root->rchild))+1;
+    }
+}
+
+int getBTreeHeightVS(BTNode* root){
+    if(root!=NULL){
+        
+    }else{
+        return 0;
+    }
+}
+

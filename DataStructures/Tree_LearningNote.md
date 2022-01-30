@@ -29,6 +29,10 @@
     - [使用字符串创建二叉树（链式）](#使用字符串创建二叉树链式)
     - [从顺序表二叉树转换成链式二叉树](#从顺序表二叉树转换成链式二叉树)
     - [随机二叉树的创建](#随机二叉树的创建)
+    - [二叉树的基本算法](#二叉树的基本算法)
+      - [查找结点](#查找结点)
+      - [销毁二叉树](#销毁二叉树)
+      - [求二叉树的高度](#求二叉树的高度)
 
 ## 树的各种基本概念
 ### 1、树的定义
@@ -307,5 +311,104 @@ BTNode* createRandomBTree(){
 }
 ```
 
+### 二叉树的基本算法
+#### 查找结点
+对于给定字符，进行查找并返回其指针，若无此字符，则返回NULL。
+**C语言程序实现**
+
+实际上在具体实现上，两者难度一致；需要注意的是，如果一个递归函数中出现两个递归时，要注意对于返回值的处理；
+
+*使用递归实现*
+```C
+BTNode* findX(BTNode* btn,char c){
+    BTNode* p;
+    if(btn==NULL){
+        return NULL;
+    }else if(btn->data==c){
+        return btn;
+    }else{
+        p = findX(btn->lchild,c);
+        if(p!=NULL) return p;
+        else return findX(btn->rchild,c);
+    }
+}
+```
+*使用栈实现*
+```C
+BTNode* findXVS(BTNode* btn,char c){
+    if(btn==NULL){return NULL;}
+    BTNodeStack* btns = (BTNodeStack*)malloc(sizeof(BTNodeStack));
+    initBTNodeStack(btns);
+    pushBTNode(btns,btn);
+    while(!btnStackEmpty(btns)){
+        BTNode* tmp = popBTNode(btns);
+        if(tmp->data==c){
+            return tmp;
+        }else{
+            //入栈子结点
+            if(tmp->lchild!=NULL){
+                pushBTNode(btns,tmp->lchild);
+            }
+            if(tmp->rchild!=NULL){
+                pushBTNode(btns,tmp->rchild);
+            }
+        }
+    }
+    return NULL;
+}
+```
+
+#### 销毁二叉树
+只要结点不为空，就进行销毁，并对其子结点进行销毁；
+**C语言程序实现**
+
+*递归实现销毁*
+```C
+void destoryBTree(BTNode* root){
+    if(root!=NULL){
+        destoryBTree(root->lchild);
+        destoryBTree(root->rchild);
+        free(root);
+    }
+}
+```
+
+*栈实现销毁*
+```C
+void destoryBTreeVS(BTNode* root){
+    BTNodeStack* btns = (BTNodeStack*)malloc(sizeof(BTNodeStack));
+    initBTNodeStack(btns);
+    if(root!=NULL){
+        pushBTNode(btns,root);
+    }
+    while(!btnStackEmpty(btns)){
+        BTNode* temp = popBTNode(btns);
+        if(temp->lchild!=NULL){
+            pushBTNode(btns,temp->lchild);
+        }
+        if(temp->rchild!=NULL){
+            pushBTNode(btns,temp->rchild);
+        }
+        free(temp);
+    }
+}
+```
+
+#### 求二叉树的高度
+求二叉树的高度的基本思想，如果二叉树结点为空，则返回0，如果非空则返回左右子树高度的最大值加1；
+**C语言实现**
+*递归实现求二叉树的高度*
+```C
+int getBTreeHeight(BTNode* root){
+    if(root==NULL){return 0;}
+    else{
+        return fmax(getBTreeHeight(root->lchild),getBTreeHeight(root->rchild))+1;
+    }
+}
+```
+*栈实现求二叉树的高度*
+```C
+
+```
 
 
