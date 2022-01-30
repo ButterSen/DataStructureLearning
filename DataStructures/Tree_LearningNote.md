@@ -270,4 +270,42 @@ BTNode* transArrayToBTree(char*  SBTree){
 
 利用顺序表二叉树转链式二叉树，创建随机顺序表二叉树再转链式二叉树实现随机二叉树的创建：
 
+1、创建随机数组，确保数组中每个有效字符不会重复，并且数组长度随机；
+
+2、对每个字符按照二叉树的顺序存储结构进行编码；
+
+3、利用转换函数对顺序存储结构进行转换成链式存储结构。
+
+**C语言程序实现**
+```C
+BTNode* createRandomBTree(){
+    double test = (double)rand()/(double)INT_MAX;
+    int len = (int)(((double)rand()/(double)RAND_MAX)*26);
+    // printf("%d\n",len);
+    char str[len+1];
+    int prob = 20,random,index = 0;
+    for(int i = 0;i<len;i++){
+        str[i] = 't';
+    }
+    str[len] = '\0';
+    if(len<2){return NULL;}
+    for(int i = 1;i<len;i++){
+        if(str[i/2]!='#'){
+            random = (double)rand()/(double)RAND_MAX*prob;
+            if(random<=prob-2){
+                str[i] = 'A'+index;
+                index++;
+            }else{
+                str[i] = '#';
+            }
+        }else{
+            str[i] = '#';
+        }
+    }
+    // printf("%s %d %d",str,index,len);
+    return transArrayToBTree(str);
+}
+```
+
+
 

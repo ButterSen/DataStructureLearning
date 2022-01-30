@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
 #define MaxSize 100
 //本程序时用来实现二叉树的各种算法
 typedef struct node{
@@ -27,12 +29,20 @@ BTNode* createRandomBTree();
 void preOrderRecursive(BTNode*);
 
 int main(){
-    char* str1 = "A(B(D(,G)),C(E,F))";
-    BTNode* root1 = createBTreeByParentheses(str1);
-    char* str2 = " ABCD#EF#G";
-    BTNode* root2 = transArrayToBTree(str2);
-    preOrderRecursive(root1);
-    preOrderRecursive(root2);
+    srand((unsigned)time(0));
+    // char* str1 = "A(B(D(,G)),C(E,F))";
+    // BTNode* root1 = createBTreeByParentheses(str1);
+    // char* str2 = " ABCD#EF#G";
+    // BTNode* root2 = transArrayToBTree(str2);
+    // preOrderRecursive(root1);
+    // preOrderRecursive(root2);
+    // printf("\n");
+    int i = 1;
+    while(i++<100){
+    BTNode* root = createRandomBTree();
+    preOrderRecursive(root);
+    printf("\n");
+    }
     return 0;    
 }
 
@@ -101,7 +111,7 @@ BTNode* createBTreeByParentheses(char* str){
 BTNode* transArrayToBTree(char*  SBTree){
     //默认顺序表存储二叉树序号是从1开始的
     //空结点用'#'来表示
-    if(SBTree==""){return NULL;}
+    if(SBTree==NULL||SBTree == "\0"){return NULL;}
     char ch = SBTree[1];
     //防止树为空或者根结点为空
     if(ch=='\0'||ch == '#'){return NULL;}
@@ -161,7 +171,31 @@ BTNode* transArrayToBTree(char*  SBTree){
 }
 
 BTNode* createRandomBTree(){
-    
+    double test = (double)rand()/(double)INT_MAX;
+    int len = (int)(((double)rand()/(double)RAND_MAX)*26);
+    // printf("%d\n",len);
+    char str[len+1];
+    int prob = 20,random,index = 0;
+    for(int i = 0;i<len;i++){
+        str[i] = 't';
+    }
+    str[len] = '\0';
+    if(len<2){return NULL;}
+    for(int i = 1;i<len;i++){
+        if(str[i/2]!='#'){
+            random = (double)rand()/(double)RAND_MAX*prob;
+            if(random<=prob-2){
+                str[i] = 'A'+index;
+                index++;
+            }else{
+                str[i] = '#';
+            }
+        }else{
+            str[i] = '#';
+        }
+    }
+    // printf("%s %d %d",str,index,len);
+    return transArrayToBTree(str);
 }
 
 void preOrderRecursive(BTNode* root){
