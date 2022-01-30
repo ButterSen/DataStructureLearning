@@ -26,7 +26,9 @@
     - [1、二叉树的顺序存储结构](#1二叉树的顺序存储结构)
     - [2、二叉树的链式存储结构](#2二叉树的链式存储结构)
   - [二叉树的各类算法](#二叉树的各类算法)
-    - [使用字符串创建二叉树](#使用字符串创建二叉树)
+    - [使用字符串创建二叉树（链式）](#使用字符串创建二叉树链式)
+    - [从顺序表二叉树转换成链式二叉树](#从顺序表二叉树转换成链式二叉树)
+    - [随机二叉树的创建](#随机二叉树的创建)
 
 ## 树的各种基本概念
 ### 1、树的定义
@@ -128,7 +130,7 @@ typedef ElemType SBTree[MaxSize];//结点从数组1开始存放
 一个结点包含数据域、指向左右子结点的指针；这种存储结构称为二叉树链存储结构（简称二叉链）。其结点申明如下：
 ```C
 typedef struct node{
-    int data;
+    char data;
     struct node* lchild;
     struct node* rchild;
 }BTNode;
@@ -137,7 +139,7 @@ typedef struct node{
 在这种存储结构下，已知一个结点，很容易访问孩子结点，但对于访问双亲结点需要使用遍历来实现。由于采用链式结构来存储二叉树，该存储结构适合结点的删除和插入，即适合与结点的动态变化。
 
 ## 二叉树的各类算法
-### 使用字符串创建二叉树
+### 使用字符串创建二叉树（链式）
 利用二叉树的括号表示法构建出二叉树的链式存储结构；
 
 对于输入字符串的每个字符，可以分成以下几种情况：
@@ -183,3 +185,89 @@ BTNode* createBTreeByParentheses(char* str){
     return root;
 }
 ```
+### 从顺序表二叉树转换成链式二叉树
+以顺序表表示的二叉树转换为链式二叉树：
+1、对于输入字符串，计算长度；
+
+2、对于每一个字符(#和\0除外)，进行入栈操作，并搜寻子结点；
+
+3、若子结点下标出界或没有右子结点，则进行出栈操作；
+
+若搜寻到子结点，进行添加，并按照2操作继续；
+
+4、若出栈的结点下标为奇数（即为右子结点），则再进行出栈操作，继续重复4判断。
+
+**C语言代码实现**
+
+```C
+BTNode* transArrayToBTree(char*  SBTree){
+    //默认顺序表存储二叉树序号是从1开始的
+    //空结点用'#'来表示
+    if(SBTree==""){return NULL;}
+    char ch = SBTree[1];
+    //防止树为空或者根结点为空
+    if(ch=='\0'||ch == '#'){return NULL;}
+    BTNode* root = createBTNode(ch);
+    BTNodeStack* btns = (BTNodeStack*)malloc(sizeof(BTNodeStack));
+    initBTNodeStack(btns);
+    pushBTNode(btns,root);
+    int i = 2,len = 0;
+    //计算长度的目的是防止在找寻子结点时越界
+    while(ch!='\0'){len++;ch = SBTree[len+1];}
+    ch = SBTree[i];
+    while(1){
+        if(i<=len){
+            //未出界且左子结点
+            if(i%2==0){
+                if(ch!='#'){
+                    BTNode* lchild = createBTNode(ch);
+                    getTopBTNode(btns)->lchild = lchild;
+                    pushBTNode(btns,lchild);
+                    i = 2*i;
+                }else{
+                    //查询右子结点
+                    i++;
+                }
+            }
+            else{
+                if(ch!='#'){
+                    BTNode* rchild = createBTNode(ch);
+                    getTopBTNode(btns)->rchild = rchild;
+                    pushBTNode(btns,rchild);
+                    i = 2*i;
+                }else{
+                    //如果右子结点为空，一直出栈直到左子节点
+                    while(i%2==1&&!btnStackEmpty(btns)){
+                        popBTNode(btns);
+                        i/=2;
+                    }
+                    //如果最后是根结点
+                    if(btnStackEmpty(btns)){return root;}
+                    i++;
+                }
+            }
+        }else{
+            //若出界，则进行出栈，多增加一步操作是因为存在左子结点越界的情况
+            i/=2;
+            popBTNode(btns);
+            while(i%2==1&&!btnStackEmpty(btns)){
+                popBTNode(btns);
+                i/=2;
+            }
+            //如果最后是根结点
+            if(btnStackEmpty(btns)){return root;}
+            i++;
+        }
+        ch = SBTree[i];
+    }    
+}
+```
+
+其实有更加简易的方法进行从顺序表二叉树到链式二叉树的转换，我们可以忽略空结点的限制，将空结点当作一个特殊的结点进行处理，只考虑长度限制，进行完全二叉树的建树，最后将空结点进行剔除；但有个缺点，如果树内空结点较多时，对于时间复杂度较高，且在进行剔除操作的时候，仍要进行各种操作（其实剔除的操作与本算法无异），所以本笔记还是采取笔者设计的算法进行随机二叉树的建造；
+
+### 随机二叉树的创建
+（本算法并不属于DS要求内容）
+
+利用顺序表二叉树转链式二叉树，创建随机顺序表二叉树再转链式二叉树实现随机二叉树的创建：
+
+

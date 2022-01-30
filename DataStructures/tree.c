@@ -19,14 +19,20 @@ BTNode* getTopBTNode(BTNodeStack*);
 int pushBTNode(BTNodeStack*,BTNode*);
 int btnStackEmpty(BTNodeStack*);
 
+/*************二叉树的基本算法*********************/
 BTNode* createBTNode(char);
 BTNode* createBTreeByParentheses(char*);
+BTNode* transArrayToBTree(char*);
+BTNode* createRandomBTree();
 void preOrderRecursive(BTNode*);
 
 int main(){
-    char* str = "A(B(D(,G)),C(E,F))";
-    BTNode* root = createBTreeByParentheses(str);
-    preOrderRecursive(root);
+    char* str1 = "A(B(D(,G)),C(E,F))";
+    BTNode* root1 = createBTreeByParentheses(str1);
+    char* str2 = " ABCD#EF#G";
+    BTNode* root2 = transArrayToBTree(str2);
+    preOrderRecursive(root1);
+    preOrderRecursive(root2);
     return 0;    
 }
 
@@ -40,10 +46,14 @@ int pushBTNode(BTNodeStack* btns,BTNode* btn){
     return 0;
 }
 BTNode* popBTNode(BTNodeStack* btns){
+    if(!btnStackEmpty(btns))
     return btns->btNodes[btns->top--];
+    else return NULL;
 }
 BTNode* getTopBTNode(BTNodeStack* btns){
+    if(!btnStackEmpty(btns))
     return btns->btNodes[btns->top];
+    else return NULL;
 }
 int btnStackEmpty(BTNodeStack* btns){
     return btns->top==-1;
@@ -86,6 +96,72 @@ BTNode* createBTreeByParentheses(char* str){
         ch = str[i++];
     }
     return root;
+}
+
+BTNode* transArrayToBTree(char*  SBTree){
+    //默认顺序表存储二叉树序号是从1开始的
+    //空结点用'#'来表示
+    if(SBTree==""){return NULL;}
+    char ch = SBTree[1];
+    //防止树为空或者根结点为空
+    if(ch=='\0'||ch == '#'){return NULL;}
+    BTNode* root = createBTNode(ch);
+    BTNodeStack* btns = (BTNodeStack*)malloc(sizeof(BTNodeStack));
+    initBTNodeStack(btns);
+    pushBTNode(btns,root);
+    int i = 2,len = 0;
+    //计算长度的目的是防止在找寻子结点时越界
+    while(ch!='\0'){len++;ch = SBTree[len+1];}
+    ch = SBTree[i];
+    while(1){
+        if(i<=len){
+            //未出界且左子结点
+            if(i%2==0){
+                if(ch!='#'){
+                    BTNode* lchild = createBTNode(ch);
+                    getTopBTNode(btns)->lchild = lchild;
+                    pushBTNode(btns,lchild);
+                    i = 2*i;
+                }else{
+                    //查询右子结点
+                    i++;
+                }
+            }
+            else{
+                if(ch!='#'){
+                    BTNode* rchild = createBTNode(ch);
+                    getTopBTNode(btns)->rchild = rchild;
+                    pushBTNode(btns,rchild);
+                    i = 2*i;
+                }else{
+                    //如果右子结点为空，一直出栈直到左子节点
+                    while(i%2==1&&!btnStackEmpty(btns)){
+                        popBTNode(btns);
+                        i/=2;
+                    }
+                    //如果最后是根结点
+                    if(btnStackEmpty(btns)){return root;}
+                    i++;
+                }
+            }
+        }else{
+            //若出界，则进行出栈，多增加一步操作是因为存在左子结点越界的情况
+            i/=2;
+            popBTNode(btns);
+            while(i%2==1&&!btnStackEmpty(btns)){
+                popBTNode(btns);
+                i/=2;
+            }
+            //如果最后是根结点
+            if(btnStackEmpty(btns)){return root;}
+            i++;
+        }
+        ch = SBTree[i];
+    }    
+}
+
+BTNode* createRandomBTree(){
+    
 }
 
 void preOrderRecursive(BTNode* root){
